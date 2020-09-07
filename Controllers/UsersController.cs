@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SammysAuto.Data;
+using SammysAuto.Models;
 
 namespace SammysAuto.Controllers
 {
@@ -15,9 +16,31 @@ namespace SammysAuto.Controllers
             this.context = context;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string option=null, string search=null)
         {
-            var users = this.context.ApplicationUsers.ToList();
+            var users = new List<ApplicationUser>();
+            if (option == "email" && search != null)
+            {
+                users = this.context.ApplicationUsers.Where(u => u.Email.ToLower().Contains(search.ToLower())).ToList();
+            }
+            else
+            {
+                if (option == "name" && search != null)
+                {
+                    users = this.context.ApplicationUsers.Where(u => u.FirstName.ToLower().Contains(search.ToLower())
+                            || u.LastName.ToLower().Contains(search.ToLower())).ToList();
+                }
+                else
+                {
+                    if (option == "phone" && search != null)
+                    {
+                        users = this.context.ApplicationUsers.Where(u => u.PhoneNumber.ToLower().Contains(search.ToLower())).ToList();
+                    }
+                }
+            }
+            if (option == null) {
+                users = this.context.ApplicationUsers.ToList();
+            }
             return View(users);
         }
 
